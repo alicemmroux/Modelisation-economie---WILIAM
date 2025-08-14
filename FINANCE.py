@@ -5,8 +5,8 @@ years = list(range(2014, 2016))
 capitalstock_proj = K_stock.households_capital_stock_over_time(years)
 
 _subscript_dict = {
-    "HOUSEHOLDS_I": ["LowINC", "HighINC"],
     "REGIONS_I": ["FR", "IT"],
+    "HOUSEHOLDS_I": ["LowINC", "HighINC"],
 }
 
 def base_number_of_households():
@@ -105,11 +105,9 @@ def households_net_lending():
 def initial_households_financial_liabilities():
     return xr.DataArray(
         [[300, 500], [200, 400]],
-        coords={
-            "REGIONS_I": _subscript_dict["REGIONS_I"],
-            "HOUSEHOLDS_I": _subscript_dict["HOUSEHOLDS_I"]
-        },
-        dims=["REGIONS_I", "HOUSEHOLDS_I"]
+        dims=_subscript_dict.keys(),
+        coords=_subscript_dict,
+
     )
 
 
@@ -122,6 +120,7 @@ def ratio_liabilities_to_disposable_income():
         },
         dims=["REGIONS_I", "HOUSEHOLDS_I"]
     )
+
 
 def wealth_tax_rate():
     return xr.DataArray(
@@ -174,6 +173,7 @@ def households_financial_assets_over_time(years, liabilities_by_year):
 
     return xr.concat(results, dim="Year").assign_coords({"Year": years})
 
+
 def households_property_income_paid_over_time(years, liabilities_by_year):
     rate = interest_rate_for_households_liabilities()
     results = []
@@ -186,8 +186,10 @@ def households_property_income_paid_over_time(years, liabilities_by_year):
 
     return xr.concat(results, dim="Year").assign_coords({"Year": years})
 
+
 def compute_households_property_income_paid(years, liabilities_proj):
     return households_property_income_paid_over_time(years, liabilities_proj)
+
 
 def households_property_income_received_over_time(years, assets_by_year, capitalstock_proj):
     rate = interest_rate_for_households_assets()
@@ -200,7 +202,6 @@ def households_property_income_received_over_time(years, assets_by_year, capital
         results.append(payment.expand_dims(Year=[yr]))
 
     return xr.concat(results, dim="Year")
-
 
 
 def households_net_wealth_over_time(years, liabilities_by_year, assets_by_year, capitalstock_proj):
